@@ -1,6 +1,7 @@
 from dotmap import DotMap
 from brownie import *
 from brownie.network.gas.strategies import GasNowStrategy
+import time
 import json
 from dotenv import load_dotenv
 import os
@@ -15,10 +16,9 @@ brownie = os.getenv( 'network' )
 network.connect( brownie )
 me = accounts.default = accounts.load( wallet )
 
-strategy = GasNowStrategy( speed='rapid' )
-gas_price( strategy )
 
-with open( 'accounts_.json', 'r' ) as f:
+
+with open( 'accounts.json', 'r' ) as f:
     accounts = DotMap( json.load( f ) )
 
 c = Contract.from_explorer( '0xA39d1e9CBecdb17901bFa87a5B306D67f15A2391' )
@@ -38,6 +38,8 @@ def claim(r):
 
 with Status( 'API not updated..' ):
     while True:
+        strategy = GasNowStrategy( speed='rapid' )
+        gas_price( strategy )
         url = f'https://cu3pxr9ydi.execute-api.us-east-1.amazonaws.com/prod/distributor' \
               f'/{accounts.main}'
         r = requests.get( url ).json()[0]
@@ -48,3 +50,4 @@ with Status( 'API not updated..' ):
                       f'/{a}'
             r = requests.get( url ).json()[0]
             claim( r )
+        time.sleep(1)
